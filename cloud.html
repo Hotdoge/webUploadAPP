@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上下传</title>
+    <link rel="icon" href="favicon.ico">
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <style>
+        .head{
+        width: 100%;
+        background-color: whitesmoke;
+        height: 120px;
+        line-height: 100px;
+        margin-top:-20px;
+        margin-bottom: 20px;
+        border-radius:  0px 0 10px 10px;
+        padding:30px 20px 30px 10px;
+        top:0px;
+        }
+        .list-group-item{
+            height: 40px;
+        }
+        .mid{width: 80%;}
+        #inner{
+            width: 100%;
+            height: 240px;
+            overflow: auto;
+        }
+        .list-group-item:hover{background-color: rgb(218, 218, 218);}
+        #refresh{
+            position: relative;
+            bottom:8px;}
+        img{width: 55px;height: 45px;}
+        body{
+            background-image: url('/background.jpg');
+            background-size:cover;
+            font-family: '幼圆';
+        }
+        a:hover{text-decoration: none;}
+        .aclick{
+            color:rgb(99, 99, 99);
+            border-radius: 5px;
+            float: left;
+            margin:0 4px;
+            width: 40px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            }
+        .aclick:hover{
+            color:rgb(250, 250, 250);
+            background-color: rgba(0, 75, 124, 0.753);}
+        .aclick:active{ outline:2px solid grey;
+}
+        .filename{
+        width: 60%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        }
+        .input{display: flex;}
+        .progress{ 
+            margin:8px 0;
+            margin-left: 30px;
+            width: 40%;
+            display:none
+        }
+        .bottom{
+            color: rgb(224, 223, 223);
+            font-family: '楷体';
+            font-size: 15px;
+        }
+        ul{list-style: none;}
+        .glyphicon-envelope{font-size: 30px;}
+        .line{
+            width: 100%;
+            height: 1px;
+            margin:10px 0;
+            background-image: linear-gradient(to right, yellow,rgb(25, 115, 175)  ,white);}
+        .right{float: right;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="head">
+            <h2> <img src="favicon.ico" alt="">Huoyao's 文件上下传小程序  <span class="date right"></span> <span class="right glyphicon glyphicon-time"></span></h2> 
+          </div>
+          <div class="line"></div>
+        <div class="mid  center-block">
+            <div class="list-group">
+                <a href="#" class="list-group-item active">
+                 <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>文件列表:
+                <button id='refresh' class="btn btn-default pull-right" type="button">refresh</button>
+                </a>
+               <div id="inner"> </div>
+            </div>
+
+            <div class="input">
+                <label>File input : </label>
+                <input id="fileinput" type="file" class="file" multiple="multiple" name="a" />
+                <button id="upload" class="btn btn-default">上传文件</button>
+
+                <div class="progress" >
+                    <div id="bar" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="line"></div>
+        <div class="bottom">
+        <ul class="pull-left">
+            <li><span class='glyphicon glyphicon-triangle-right'></span> 上传文件后不得立马刷新，否则打断上传会出错</li>
+            <li><span class='glyphicon glyphicon-triangle-right'></span> 文件大小不得超过50Mb</li>
+            <li><span class='glyphicon glyphicon-triangle-right'></span> 文件按照名称排序</li>
+        </ul>
+        <div class="me pull-right"> 联系Huoyao：<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=Hi8nKC0tLSssLSpeb28wfXFz"><span class="glyphicon glyphicon-envelope"></span> </a></div>
+    </div>
+</div>
+ </body>
+ <script>
+    const baseUrl = "http://1.116.212.12/"
+    var inner=document.getElementById('inner')
+    var refresh=document.getElementById('refresh')
+    var upload=document.getElementById('upload')
+    var progress=document.getElementsByClassName('progress')[0]
+    var bar=document.getElementById('bar')
+    var date=document.getElementsByClassName('date')[0]
+    var time=new Date()
+    var time=time.toLocaleString()
+    setInterval(() => {
+        date.innerHTML=' : '+time
+    }, 1000);
+    function aclick(a='refresh',b=0) {     
+        var xhr = new XMLHttpRequest();
+        if(b==3)
+        if(confirm('确定要执行该操作吗？')){
+            xhr.open('GET', baseUrl + a)
+            xhr.send()
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) 
+                aclick()
+            }
+        }
+        else return 0;
+        if(b==1){
+            xhr.open('GET', baseUrl+ a)
+            xhr.send()
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) 
+                alert(xhr.response)      
+            }
+        }
+        if(b==0){
+            xhr.open('GET', baseUrl+'refresh')
+            xhr.send()
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {inner.innerHTML=xhr.response}
+            }
+        }
+    }
+
+ $("#upload").click(function (e) {
+  e.preventDefault();
+  var formData = new FormData(); 
+  var file = $("#fileinput")[0].files; 
+  formData.append("file", file[0]);
+  if (Object.keys(file).length == 0) {alert("请添加文件");}
+  else {
+    barchange("0%","0%")
+    $.ajax({
+      url: baseUrl+"up",
+      type: "post",
+      cache: false,
+      async: true,
+      processData: false,
+      contentType: false,
+      data: formData,
+      xhr: function () {
+        var myXhr = $.ajaxSettings.xhr();
+          myXhr.upload.addEventListener("progress",
+            function (e) {
+              var loaded = e.loaded;
+              var total = e.total;
+              var percent = Math.floor((100 * loaded) / total) + "%";
+              barchange(`${percent}`, `${percent}`);
+            },
+            false
+          ); 
+        return myXhr;
+      },
+      success: function (data) { 
+        setTimeout(() => {
+            aclick()
+          }, 500);
+        },
+      error: function () {alert("上传文件失败，请重试！");}
+    });
+  }
+});
+
+    refresh.onclick=aclick;
+    window.onload = aclick;
+    function barchange(val,width){
+        progress.style.display='block';
+        bar.style.display='block'
+        bar.innerHTML=val;
+        bar.style.width=width
+    }
+</script>
